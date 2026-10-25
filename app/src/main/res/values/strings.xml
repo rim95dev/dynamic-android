@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Dynamic Android</string>
+
+    <string name="accessibility_service_label">Dynamic Island</string>
+    <string name="accessibility_service_description">Shows incoming notifications as an island around the front camera at the top of the screen.</string>
+    <string name="notification_listener_label">Dynamic Island notifications</string>
+    <string name="island_new_notification">New notification</string>
+
+    <string name="section_permissions">Permissions</string>
+    <string name="permission_accessibility">Accessibility service</string>
+    <string name="permission_notification_access">Notification access</string>
+    <string name="permission_granted">Allowed</string>
+    <string name="permission_denied">Off</string>
+    <string name="open_settings">Open settings</string>
+
+    <string name="section_camera_position">Camera position</string>
+    <string name="camera_position_summary">Line up where the island starts with the front camera. Each screen and orientation is saved separately.</string>
+    <string name="camera_position_adjust">Adjust</string>
+    <string name="calibration_title">Camera position</string>
+    <string name="calibration_screen">Screen %1$d × %2$d</string>
+    <string name="calibration_detected">Detected position</string>
+    <string name="calibration_custom">Custom position</string>
+    <string name="calibration_hint">Change the values until the dashed lines cross at the center of the camera and the ring sits right around it.</string>
+    <string name="calibration_horizontal">Horizontal</string>
+    <string name="calibration_vertical">Vertical</string>
+    <string name="calibration_size">Circle size</string>
+    <string name="calibration_reset">Reset</string>
+    <string name="calibration_done">Done</string>
+
+    <string name="section_animation">Animation</string>
+    <string name="animation_style_1">Style 1</string>
+    <string name="animation_style_1_summary">Grows out of the camera, stretching and dropping into a card in one motion.</string>
+    <string name="animation_style_2">Style 2</string>
+    <string name="animation_style_2_summary">Stretches into a pill first, pauses for a moment, then drops into a card.</string>
+    <string name="style_2_pause">Pause</string>
+    <string name="style_2_pause_value">%1$d ms</string>
+    <string name="style_2_pause_summary">How long the pill waits before it drops into a card.</string>
+    <string name="test_island_summary">Show a sample notification in the island.</string>
+    <string name="test_island_needs_accessibility">Turn on the accessibility service to test the island.</string>
+    <string name="test_island_button">Test</string>
+    <string name="test_island_title">Dynamic Island</string>
+    <string name="test_island_text">This is a test notification. It closes in a few seconds.</string>
+
+    <string name="section_notification_apps">Notification apps</string>
+    <string name="mode_all_apps">Show all apps</string>
+    <string name="mode_all_apps_summary">Notifications from every app appear in the island, except the apps checked below.</string>
+    <string name="mode_no_apps">Show no apps</string>
+    <string name="mode_no_apps_summary">Only notifications from the apps checked below appear in the island.</string>
+    <string name="exceptions_hidden_apps">Hidden apps (%1$d)</string>
+    <string name="exceptions_shown_apps">Shown apps (%1$d)</string>
+    <string name="search_apps">Search apps</string>
+</resources>
