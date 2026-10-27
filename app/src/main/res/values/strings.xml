@@ -14,7 +14,7 @@
     <string name="open_settings">Open settings</string>
 
     <string name="section_camera_position">Camera position</string>
-    <string name="camera_position_summary">Line up where the island starts with the front camera. Each screen and orientation is saved separately.</string>
+    <string name="camera_position_summary">Line up where the island starts with the front camera. Set it once per screen; it follows the screen when you rotate the phone.</string>
     <string name="camera_position_adjust">Adjust</string>
     <string name="calibration_title">Camera position</string>
     <string name="calibration_screen">Screen %1$d × %2$d</string>

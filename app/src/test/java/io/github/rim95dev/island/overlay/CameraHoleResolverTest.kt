@@ -15,7 +15,7 @@ class CameraHoleResolverTest {
             rotation = Surface.ROTATION_0,
             screenWidth = 2448,
             screenHeight = 1848,
-            systemCutoutTop = null,
+            systemCutout = null,
             density = DENSITY,
         )
 
@@ -31,7 +31,7 @@ class CameraHoleResolverTest {
             rotation = Surface.ROTATION_0,
             screenWidth = 1248,
             screenHeight = 1972,
-            systemCutoutTop = PxRect(589, 0, 659, 104),
+            systemCutout = PxRect(589, 0, 659, 104),
             density = DENSITY,
         )
 
@@ -39,7 +39,7 @@ class CameraHoleResolverTest {
     }
 
     @Test
-    fun `falls back to the top center when the hole is not on the top edge`() {
+    fun `fold8 main screen held upright puts the camera on the side edge`() {
         val hole = CameraHoleResolver.resolve(
             model = "SM-F971N",
             naturalWidth = 2448,
@@ -47,11 +47,36 @@ class CameraHoleResolverTest {
             rotation = Surface.ROTATION_90,
             screenWidth = 1848,
             screenHeight = 2448,
-            systemCutoutTop = null,
+            systemCutout = null,
             density = DENSITY,
         )
 
-        assertEquals(CameraHole(centerX = 924, centerY = 52, diameter = 63), hole)
+        assertEquals(CameraHole(centerX = 57, centerY = 586, diameter = 78), hole)
+    }
+
+    @Test
+    fun `cover screen in landscape uses the side cutout`() {
+        val hole = CameraHoleResolver.resolve(
+            model = "SM-F971N",
+            naturalWidth = 1248,
+            naturalHeight = 1972,
+            rotation = Surface.ROTATION_90,
+            screenWidth = 1972,
+            screenHeight = 1248,
+            systemCutout = PxRect(0, 589, 104, 659),
+            density = DENSITY,
+        )
+
+        assertEquals(CameraHole(centerX = 52, centerY = 624, diameter = 70), hole)
+    }
+
+    @Test
+    fun `points rotate and come back to where they were`() {
+        for (rotation in listOf(Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270)) {
+            val (x, y) = CameraHoleResolver.rotatePoint(1862, 57, rotation, 2448, 1848)
+            assertEquals(1862 to 57, CameraHoleResolver.unrotatePoint(x, y, rotation, 2448, 1848))
+        }
+        assertEquals(57 to 586, CameraHoleResolver.rotatePoint(1862, 57, Surface.ROTATION_90, 2448, 1848))
     }
 
     @Test
@@ -63,7 +88,7 @@ class CameraHoleResolverTest {
             rotation = Surface.ROTATION_0,
             screenWidth = 1080,
             screenHeight = 2400,
-            systemCutoutTop = null,
+            systemCutout = null,
             density = DENSITY,
         )
 

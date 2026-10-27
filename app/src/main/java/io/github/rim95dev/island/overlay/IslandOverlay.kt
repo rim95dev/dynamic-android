@@ -149,7 +149,7 @@ class IslandOverlay(
     private fun resolveGeometry(): IslandGeometry {
         val screen = detectScreenCamera(context)
         val circle = screen.circleFor(IslandSettingsProvider.readCameraCalibration(context, screen.key))
-        return IslandGeometryCalculator.calculate(screen.width, circle, screen.density)
+        return IslandGeometryCalculator.calculate(screen.width, screen.height, circle, screen.density)
     }
 
     private fun PxRect.toRegion() = Region(left, top, right, bottom)

@@ -31,10 +31,10 @@ object CameraHoleResolver {
     private const val FALLBACK_DIAMETER_DP = 24f
 
     /**
-     * Finds the camera hole on the top edge of the current screen.
+     * Finds the camera hole of the current screen, on whichever edge the rotation put it.
      *
-     * Uses a measured [ScreenProfile] first, then the system cutout, and falls back to the top center
-     * when the screen has no hole on its top edge.
+     * Uses a measured [ScreenProfile] first, then the [systemCutout] for the current rotation, and falls back
+     * to the top center when neither knows the hole.
      */
     fun resolve(
         model: String,
@@ -43,7 +43,7 @@ object CameraHoleResolver {
         rotation: Int,
         screenWidth: Int,
         screenHeight: Int,
-        systemCutoutTop: PxRect?,
+        systemCutout: PxRect?,
         density: Float,
     ): CameraHole {
         val profileHole = SCREEN_PROFILES
@@ -54,7 +54,7 @@ object CameraHoleResolver {
             }
             ?.let { rotate(it.hole, rotation, it.naturalWidth, it.naturalHeight) }
 
-        val hole = (profileHole ?: systemCutoutTop)?.takeIf { it.isOnTopEdge(screenHeight) }
+        val hole = (profileHole ?: systemCutout)?.takeIf { it.isOnScreen(screenWidth, screenHeight) }
         return if (hole != null) {
             CameraHole(centerX = hole.centerX, centerY = hole.centerY, diameter = minOf(hole.width, hole.height))
         } else {
@@ -79,5 +79,24 @@ object CameraHoleResolver {
         else -> rect
     }
 
-    private fun PxRect.isOnTopEdge(screenHeight: Int): Boolean = height > 0 && width > 0 && top < screenHeight / 8
+    /** Maps a point from the natural orientation to the given display rotation, like [rotate]. */
+    fun rotatePoint(x: Int, y: Int, rotation: Int, naturalWidth: Int, naturalHeight: Int): Pair<Int, Int> =
+        when (rotation) {
+            Surface.ROTATION_90 -> y to naturalWidth - x
+            Surface.ROTATION_180 -> naturalWidth - x to naturalHeight - y
+            Surface.ROTATION_270 -> naturalHeight - y to x
+            else -> x to y
+        }
+
+    /** Maps a point on the rotated screen back to the natural orientation. The inverse of [rotatePoint]. */
+    fun unrotatePoint(x: Int, y: Int, rotation: Int, naturalWidth: Int, naturalHeight: Int): Pair<Int, Int> =
+        when (rotation) {
+            Surface.ROTATION_90 -> naturalWidth - y to x
+            Surface.ROTATION_180 -> naturalWidth - x to naturalHeight - y
+            Surface.ROTATION_270 -> y to naturalHeight - x
+            else -> x to y
+        }
+
+    private fun PxRect.isOnScreen(screenWidth: Int, screenHeight: Int): Boolean =
+        width > 0 && height > 0 && centerX in 0..screenWidth && centerY in 0..screenHeight
 }

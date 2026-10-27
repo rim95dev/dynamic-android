@@ -14,13 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +32,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -80,20 +75,23 @@ internal fun IslandContent(state: IslandState, onTap: () -> Unit) {
                 .clickable(interactionSource = null, indication = null, onClick = onTap),
         ) {
             state.notification?.let { notification ->
-                with(LocalDensity.current) {
-                    NotificationRow(
-                        notification = notification,
-                        contentHeight = geometry.contentHeight.toDp(),
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.TopStart, unbounded = true)
-                            .requiredSize(geometry.expanded.width.toDp(), geometry.expanded.height.toDp())
-                            .padding(top = geometry.contentTop.toDp())
-                            .graphicsLayer {
-                                alpha = ((progress.value - contentFadeStart) / (1f - contentFadeStart))
-                                    .coerceIn(0f, 1f)
-                            },
-                    )
-                }
+                NotificationRow(
+                    notification = notification,
+                    modifier = Modifier
+                        // Lays the row out at its final place on screen. While the island is smaller than the
+                        // card, the parts outside it are clipped by the island's shape.
+                        .layout { measurable, _ ->
+                            val bounds = geometry.boundsAt(progress.value, motion)
+                            val content = geometry.content
+                            val placeable = measurable.measure(Constraints.fixed(content.width, content.height))
+                            layout(bounds.width, bounds.height) {
+                                placeable.place(content.left - bounds.left, content.top - bounds.top)
+                            }
+                        }
+                        .graphicsLayer {
+                            alpha = ((progress.value - contentFadeStart) / (1f - contentFadeStart)).coerceIn(0f, 1f)
+                        },
+                )
             }
         }
     }
@@ -112,45 +110,33 @@ private fun IslandAnimationStyle.collapseEasing(): Easing = when (this) {
 }
 
 @Composable
-private fun NotificationRow(
-    notification: IslandNotification,
-    contentHeight: Dp,
-    modifier: Modifier = Modifier,
-) {
+private fun NotificationRow(notification: IslandNotification, modifier: Modifier = Modifier) {
     val icon = remember(notification.key, notification.icon) {
         notification.icon?.toBitmap(ICON_SIZE_PX, ICON_SIZE_PX)?.asImageBitmap()
     }
-    Box(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(contentHeight)
-                .padding(horizontal = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (icon != null) {
-                Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(38.dp))
-                Spacer(modifier = Modifier.width(12.dp))
-            }
-            Column {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (icon != null) {
+            Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(38.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+        }
+        Column {
+            Text(
+                text = notification.title,
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            notification.text?.let {
                 Text(
-                    text = notification.title,
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
+                    text = it,
+                    color = Color.White.copy(alpha = 0.72f),
+                    fontSize = 13.sp,
+                    lineHeight = 17.sp,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                notification.text?.let {
-                    Text(
-                        text = it,
-                        color = Color.White.copy(alpha = 0.72f),
-                        fontSize = 13.sp,
-                        lineHeight = 17.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
         }
     }

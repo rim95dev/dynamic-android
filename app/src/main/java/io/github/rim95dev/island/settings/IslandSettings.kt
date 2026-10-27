@@ -26,7 +26,9 @@ class IslandSettings private constructor(context: Context) {
     /** Saves the camera hole for [screenKey], or goes back to the detected one when [calibration] is null. */
     fun setCameraCalibration(screenKey: String, calibration: CameraCalibration?) {
         _cameraCalibrations.update { if (calibration == null) it - screenKey else it + (screenKey to calibration) }
+        val legacyKeys = prefs.all.keys.filter { it.startsWith("$KEY_CAMERA_PREFIX$screenKey@") }
         prefs.edit {
+            legacyKeys.forEach(::remove)
             if (calibration == null) remove(KEY_CAMERA_PREFIX + screenKey)
             else putString(KEY_CAMERA_PREFIX + screenKey, calibration.encode())
         }
@@ -80,12 +82,13 @@ class IslandSettings private constructor(context: Context) {
     )
 
     private fun readCameraCalibrations(): Map<String, CameraCalibration> =
-        prefs.all
-            .filterKeys { it.startsWith(KEY_CAMERA_PREFIX) }
-            .mapNotNull { (key, value) ->
-                CameraCalibration.decode(value as? String)?.let { key.removePrefix(KEY_CAMERA_PREFIX) to it }
-            }
-            .toMap()
+        CameraCalibration.fromSaved(
+            prefs.all
+                .filterKeys { it.startsWith(KEY_CAMERA_PREFIX) }
+                .mapNotNull { (key, value) ->
+                    CameraCalibration.decode(value as? String)?.let { key.removePrefix(KEY_CAMERA_PREFIX) to it }
+                },
+        )
 
     companion object {
         private const val PREFS_NAME = "island_settings"

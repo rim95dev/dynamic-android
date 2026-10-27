@@ -49,9 +49,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import io.github.rim95dev.island.R
-import io.github.rim95dev.island.overlay.ScreenCamera
+import io.github.rim95dev.island.overlay.CameraHole
 import io.github.rim95dev.island.overlay.detectScreenCamera
-import io.github.rim95dev.island.settings.CameraCalibration
 import io.github.rim95dev.island.settings.IslandSettings
 
 private val CrosshairColor = Color(0xFFE53935)
@@ -70,19 +69,24 @@ fun CameraCalibrationScreen(onDone: () -> Unit) {
     val configuration = LocalConfiguration.current
     val settings = remember { IslandSettings.get(context) }
     val screen = remember(configuration) { detectScreenCamera(context) }
-    var calibration by remember(screen.key) { mutableStateOf(savedOrDefault(settings, screen)) }
-    var isCustom by remember(screen.key) { mutableStateOf(screen.key in settings.cameraCalibrations.value) }
+    // The circle in current screen coordinates. It is saved in natural coordinates, so one position per
+    // screen follows the screen when it rotates.
+    var circle by remember(screen) {
+        mutableStateOf(screen.circleFor(settings.cameraCalibrations.value[screen.key]))
+    }
+    var isCustom by remember(screen) { mutableStateOf(screen.key in settings.cameraCalibrations.value) }
     var origin by remember { mutableStateOf(Offset.Zero) }
 
-    fun save(new: CameraCalibration) {
-        val clamped = CameraCalibration(
-            x = new.x.coerceIn(0, screen.width),
-            y = new.y.coerceIn(0, screen.height),
-            diameter = (new.diameter ?: screen.defaultCircleDiameter).coerceIn(MIN_DIAMETER, MAX_DIAMETER),
+    fun save(new: CameraHole) {
+        val clamped = CameraHole(
+            centerX = new.centerX.coerceIn(0, screen.width),
+            centerY = new.centerY.coerceIn(0, screen.height),
+            diameter = new.diameter.coerceIn(MIN_DIAMETER, MAX_DIAMETER),
         )
-        calibration = clamped
+        circle = clamped
         isCustom = true
-        settings.setCameraCalibration(screen.key, clamped)
+        val calibration = screen.toCalibration(clamped.centerX, clamped.centerY, clamped.diameter)
+        settings.setCameraCalibration(screen.key, calibration)
     }
 
     FullScreenWithCutout()
@@ -94,14 +98,13 @@ fun CameraCalibrationScreen(onDone: () -> Unit) {
             .background(Color.White)
             .onGloballyPositioned { origin = it.positionOnScreen() }
             .drawBehind {
-                val x = calibration.x - origin.x
-                val y = calibration.y - origin.y
+                val x = circle.centerX - origin.x
+                val y = circle.centerY - origin.y
                 val stroke = 1.5.dp.toPx()
                 val dashes = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 8.dp.toPx()))
                 drawLine(CrosshairColor, Offset(0f, y), Offset(size.width, y), stroke, pathEffect = dashes)
                 drawLine(CrosshairColor, Offset(x, 0f), Offset(x, size.height), stroke, pathEffect = dashes)
-                val diameter = calibration.diameter ?: screen.defaultCircleDiameter
-                drawCircle(CrosshairColor, radius = diameter / 2f, center = Offset(x, y), style = Stroke(stroke))
+                drawCircle(CrosshairColor, radius = circle.diameter / 2f, center = Offset(x, y), style = Stroke(stroke))
             }
             .imePadding(),
     ) {
@@ -128,24 +131,24 @@ fun CameraCalibrationScreen(onDone: () -> Unit) {
                 Text(text = stringResource(R.string.calibration_hint), style = MaterialTheme.typography.bodyMedium)
                 AxisControl(
                     label = stringResource(R.string.calibration_horizontal),
-                    value = calibration.x,
-                    onValueChange = { save(calibration.copy(x = it)) },
+                    value = circle.centerX,
+                    onValueChange = { save(circle.copy(centerX = it)) },
                 )
                 AxisControl(
                     label = stringResource(R.string.calibration_vertical),
-                    value = calibration.y,
-                    onValueChange = { save(calibration.copy(y = it)) },
+                    value = circle.centerY,
+                    onValueChange = { save(circle.copy(centerY = it)) },
                 )
                 AxisControl(
                     label = stringResource(R.string.calibration_size),
-                    value = calibration.diameter ?: screen.defaultCircleDiameter,
-                    onValueChange = { save(calibration.copy(diameter = it)) },
+                    value = circle.diameter,
+                    onValueChange = { save(circle.copy(diameter = it)) },
                 )
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     TextButton(
                         onClick = {
                             settings.setCameraCalibration(screen.key, null)
-                            calibration = screen.defaultCalibration()
+                            circle = screen.circleFor(null)
                             isCustom = false
                         },
                     ) {
@@ -219,11 +222,3 @@ private fun FullScreenWithCutout() {
 private const val MAX_DIGITS = 5
 private const val MIN_DIAMETER = 4
 private const val MAX_DIAMETER = 400
-
-private fun ScreenCamera.defaultCalibration() =
-    CameraCalibration(detectedHole.centerX, detectedHole.centerY, defaultCircleDiameter)
-
-private fun savedOrDefault(settings: IslandSettings, screen: ScreenCamera): CameraCalibration {
-    val saved = settings.cameraCalibrations.value[screen.key] ?: return screen.defaultCalibration()
-    return saved.copy(diameter = saved.diameter ?: screen.defaultCircleDiameter)
-}

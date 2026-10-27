@@ -4,6 +4,8 @@ An iPhone-style Dynamic Island for Android, built for the Galaxy Z Fold 8.
 
 New notifications grow out of the front camera as a small island, show the app, title and text for a few seconds, and then slip back into the camera. Tap the island to open the notification.
 
+> **Work in progress.** No official APK has been released yet. The app is still changing, so behavior, settings and this guide may change without notice. Until the first release, build it from source.
+
 ## Why
 
 There are already a few apps that bring the Dynamic Island to Android, but they are full of ads. So I decided to build my own.
@@ -17,15 +19,13 @@ There are already a few apps that bring the Dynamic Island to Android, but they 
 
 ### 1. Install the app
 
-Download the latest `dynamic-android-vX.Y.Z.apk` from [Releases](https://github.com/rim95dev/dynamic-android/releases) on the phone and open it. If the phone asks, allow your browser or file manager to install unknown apps.
-
-If an older copy built with a different signing key is installed, uninstall it first. Android refuses to update an app whose signature has changed.
-
-To build from source instead, open the project in Android Studio and run it, or connect the phone with USB debugging on and run:
+No release has been published yet, so for now build from source: open the project in Android Studio and run it, or connect the phone with USB debugging on and run:
 
 ```sh
 ./gradlew installDebug
 ```
+
+Once releases are available, download the latest `dynamic-android-vX.Y.Z.apk` from [Releases](https://github.com/rim95dev/dynamic-android/releases) on the phone and open it. If the phone asks, allow your browser or file manager to install unknown apps. If a copy built with a different signing key is installed, such as one you built yourself, uninstall it first. Android refuses to update an app whose signature has changed.
 
 ### 2. Allow the two permissions
 
@@ -67,7 +67,7 @@ Once the pop-ups are off, notifications from apps you hide in the island setting
 
 Open **Camera position → Adjust**. The screen turns white and shows dashed lines that cross at the island's center, with a ring for the island's circle. Change **Horizontal**, **Vertical** and **Circle size** until the lines cross at the center of the camera and the ring sits right around it.
 
-Each screen and orientation is saved separately, so on a foldable do this once on the cover screen and once on the main screen. **Reset** goes back to the detected position.
+Do this once per screen. On a foldable, do it once on the cover screen and once on the main screen. The position follows the screen when you rotate the phone, so you can line it up in any orientation. **Reset** goes back to the detected position.
 
 ## Settings
 
@@ -78,6 +78,14 @@ Each screen and orientation is saved separately, so on a foldable do this once o
 - **Notification apps**
   - **Show all apps**: every app appears in the island except the ones you check.
   - **Show no apps**: only the apps you check appear in the island.
+
+## Rotation
+
+The island always grows out of the camera, wherever rotating the phone puts it:
+
+- **Camera at the top**: the island opens downwards, with the notification below the camera.
+- **Camera on the left or right** (landscape, or a foldable's main screen held upright): the island stretches into the screen from the camera and opens up and down around it, with the notification beside the camera.
+- **Camera at the bottom** (upside down): the island opens upwards, with the notification above the camera.
 
 ## What shows in the island
 

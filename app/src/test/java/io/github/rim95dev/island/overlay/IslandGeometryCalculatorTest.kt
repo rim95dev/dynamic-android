@@ -10,8 +10,8 @@ class IslandGeometryCalculatorTest {
     private val coverHole = CameraHole(centerX = 624, centerY = 52, diameter = 70)
     private val innerHole = CameraHole(centerX = 1862, centerY = 57, diameter = 78)
 
-    private val cover = IslandGeometryCalculator.calculate(screenWidth = 1248, circle = coverHole, density = DENSITY)
-    private val inner = IslandGeometryCalculator.calculate(screenWidth = 2448, circle = innerHole, density = DENSITY)
+    private val cover = IslandGeometryCalculator.calculate(screenWidth = 1248, screenHeight = 1972, circle = coverHole, density = DENSITY)
+    private val inner = IslandGeometryCalculator.calculate(screenWidth = 2448, screenHeight = 1848, circle = innerHole, density = DENSITY)
 
     private val style1 = IslandMotion(IslandAnimationStyle.STYLE_1)
     private val motions = listOf(
@@ -134,8 +134,7 @@ class IslandGeometryCalculatorTest {
     @Test
     fun `content starts below the hole`() {
         for ((geometry, hole) in listOf(cover to coverHole, inner to innerHole)) {
-            val contentTopOnScreen = geometry.expanded.top + geometry.contentTop
-            assertTrue(contentTopOnScreen > hole.centerY + hole.diameter / 2)
+            assertTrue(geometry.content.top > hole.centerY + hole.diameter / 2)
             assertTrue(geometry.expanded.top <= hole.centerY - hole.diameter / 2)
         }
     }
