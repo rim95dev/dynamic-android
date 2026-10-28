@@ -3,7 +3,19 @@ package io.github.rim95dev.island.overlay
 import kotlin.math.roundToInt
 
 /** The screen edge the front camera sits on in the current orientation. */
-enum class CameraEdge { TOP, BOTTOM, LEFT, RIGHT }
+enum class CameraEdge {
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT,
+    ;
+
+    companion object {
+        /** The edge of a [width] × [height] screen nearest to the point [x], [y]. */
+        fun nearest(x: Int, y: Int, width: Int, height: Int): CameraEdge =
+            listOf(TOP to y, BOTTOM to height - y, LEFT to x, RIGHT to width - x).minBy { it.second }.first
+    }
+}
 
 /**
  * Where the island window sits on screen and how the island grows inside it.
@@ -92,7 +104,7 @@ object IslandGeometryCalculator {
         val margin = dp(SIDE_MARGIN_DP)
         val maxWidth = minOf(screenWidth - 2 * margin, dp(MAX_WIDTH_DP))
         val contentHeight = dp(CONTENT_HEIGHT_DP)
-        val edge = nearestEdge(centerX, centerY, screenWidth, screenHeight)
+        val edge = CameraEdge.nearest(centerX, centerY, screenWidth, screenHeight)
 
         val expanded: PxRect
         val content: PxRect
@@ -156,12 +168,4 @@ object IslandGeometryCalculator {
             content = content,
         )
     }
-
-    private fun nearestEdge(x: Int, y: Int, width: Int, height: Int): CameraEdge =
-        listOf(
-            CameraEdge.TOP to y,
-            CameraEdge.BOTTOM to height - y,
-            CameraEdge.LEFT to x,
-            CameraEdge.RIGHT to width - x,
-        ).minBy { it.second }.first
 }

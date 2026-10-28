@@ -52,6 +52,7 @@ import io.github.rim95dev.island.apps.LauncherApp
 import io.github.rim95dev.island.apps.loadLauncherApps
 import io.github.rim95dev.island.overlay.IslandAnimationStyle
 import io.github.rim95dev.island.overlay.IslandMotion
+import io.github.rim95dev.island.overlay.IslandPlacement
 import io.github.rim95dev.island.service.IslandAccessibilityService
 import io.github.rim95dev.island.settings.AppFilterMode
 import io.github.rim95dev.island.settings.IslandSettings
@@ -64,6 +65,7 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
     val context = LocalContext.current
     val settings = remember { IslandSettings.get(context) }
     val appFilter by settings.appFilter.collectAsStateWithLifecycle()
+    val placement by settings.placement.collectAsStateWithLifecycle()
     val animationStyle by settings.animationStyle.collectAsStateWithLifecycle()
     val style2PauseMillis by settings.style2PauseMillis.collectAsStateWithLifecycle()
     val apps by produceState<List<LauncherApp>?>(initialValue = null) {
@@ -107,6 +109,22 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
         }
 
         item { SectionTitle(R.string.section_camera_position) }
+        item {
+            ModeOption(
+                title = stringResource(R.string.placement_follow_camera),
+                summary = stringResource(R.string.placement_follow_camera_summary),
+                selected = placement == IslandPlacement.FOLLOW_CAMERA,
+                onSelect = { settings.setPlacement(IslandPlacement.FOLLOW_CAMERA) },
+            )
+        }
+        item {
+            ModeOption(
+                title = stringResource(R.string.placement_top),
+                summary = stringResource(R.string.placement_top_summary),
+                selected = placement == IslandPlacement.TOP_ONLY,
+                onSelect = { settings.setPlacement(IslandPlacement.TOP_ONLY) },
+            )
+        }
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),

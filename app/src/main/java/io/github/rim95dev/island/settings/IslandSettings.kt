@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import io.github.rim95dev.island.overlay.IslandAnimationStyle
 import io.github.rim95dev.island.overlay.IslandMotion
+import io.github.rim95dev.island.overlay.IslandPlacement
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,18 @@ class IslandSettings private constructor(context: Context) {
             if (calibration == null) remove(KEY_CAMERA_PREFIX + screenKey)
             else putString(KEY_CAMERA_PREFIX + screenKey, calibration.encode())
         }
+    }
+
+    private val _placement = MutableStateFlow(
+        prefs.getString(KEY_PLACEMENT, null)
+            ?.let { name -> IslandPlacement.entries.firstOrNull { it.name == name } }
+            ?: IslandPlacement.FOLLOW_CAMERA,
+    )
+    val placement: StateFlow<IslandPlacement> = _placement.asStateFlow()
+
+    fun setPlacement(placement: IslandPlacement) {
+        _placement.value = placement
+        prefs.edit { putString(KEY_PLACEMENT, placement.name) }
     }
 
     private val _animationStyle = MutableStateFlow(
@@ -93,6 +106,7 @@ class IslandSettings private constructor(context: Context) {
     companion object {
         private const val PREFS_NAME = "island_settings"
         private const val KEY_CAMERA_PREFIX = "camera_center/"
+        private const val KEY_PLACEMENT = "island_placement"
         private const val KEY_ANIMATION_STYLE = "animation_style"
         private const val KEY_STYLE_2_PAUSE = "style_2_pause_millis"
         private const val KEY_MODE = "app_filter_mode"

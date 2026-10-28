@@ -14,6 +14,10 @@
     <string name="open_settings">Open settings</string>
 
     <string name="section_camera_position">Camera position</string>
+    <string name="placement_follow_camera">Follow the camera</string>
+    <string name="placement_follow_camera_summary">The island grows out of the camera on whichever edge it is, in every orientation.</string>
+    <string name="placement_top">Top of the screen</string>
+    <string name="placement_top_summary">The island always opens from the top. When the camera is on another edge, it opens from the top center.</string>
     <string name="camera_position_summary">Line up where the island starts with the front camera. Set it once per screen; it follows the screen when you rotate the phone.</string>
     <string name="camera_position_adjust">Adjust</string>
     <string name="calibration_title">Camera position</string>

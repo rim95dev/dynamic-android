@@ -71,6 +71,10 @@ Do this once per screen. On a foldable, do it once on the cover screen and once 
 
 ## Settings
 
+- **Camera position**
+  - **Follow the camera**: the island grows out of the camera on whichever edge it is, in every orientation. The default.
+  - **Top of the screen**: the island always opens from the top. When the camera is at the top it still grows out of it; when the phone is turned so the camera is on another edge, it opens from the top center.
+  - **Adjust** sets the camera position and circle size for the screen you are on. The cover screen and the main screen each keep their own.
 - **Animation**
   - **Style 1**: the island stretches and drops into a card in one motion.
   - **Style 2**: the island stretches into a pill, pauses, then drops into a card. The pause is adjustable from 0 to 300 ms.
@@ -81,11 +85,13 @@ Do this once per screen. On a foldable, do it once on the cover screen and once 
 
 ## Rotation
 
-The island always grows out of the camera, wherever rotating the phone puts it:
+With **Follow the camera**, the island always grows out of the camera, wherever rotating the phone puts it:
 
 - **Camera at the top**: the island opens downwards, with the notification below the camera.
 - **Camera on the left or right** (landscape, or a foldable's main screen held upright): the island stretches into the screen from the camera and opens up and down around it, with the notification beside the camera.
 - **Camera at the bottom** (upside down): the island opens upwards, with the notification above the camera.
+
+With **Top of the screen**, the island opens from the top in every orientation instead.
 
 ## What shows in the island
 

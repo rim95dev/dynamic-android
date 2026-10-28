@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import io.github.rim95dev.island.overlay.IslandAnimationStyle
 import io.github.rim95dev.island.overlay.IslandMotion
+import io.github.rim95dev.island.overlay.IslandPlacement
 
 /**
  * Serves [IslandSettings] from the main process to the island services, which run in the `:island` process.
@@ -25,6 +26,7 @@ class IslandSettingsProvider : ContentProvider() {
         return when (method) {
             METHOD_GET_APP_FILTER -> settings.appFilter.value.toBundle()
             METHOD_GET_CAMERA_CALIBRATION -> arg?.let { settings.cameraCalibrations.value[it] }?.toBundle()
+            METHOD_GET_PLACEMENT -> Bundle().apply { putString(KEY_PLACEMENT, settings.placement.value.name) }
             METHOD_GET_ANIMATION_STYLE -> Bundle().apply { putString(KEY_STYLE, settings.animationStyle.value.name) }
             METHOD_GET_STYLE_2_PAUSE -> Bundle().apply { putInt(KEY_PAUSE, settings.style2PauseMillis.value) }
             else -> null
@@ -50,6 +52,8 @@ class IslandSettingsProvider : ContentProvider() {
     companion object {
         private const val METHOD_GET_APP_FILTER = "getAppFilter"
         private const val METHOD_GET_CAMERA_CALIBRATION = "getCameraCalibration"
+        private const val METHOD_GET_PLACEMENT = "getPlacement"
+        private const val KEY_PLACEMENT = "placement"
         private const val METHOD_GET_ANIMATION_STYLE = "getAnimationStyle"
         private const val METHOD_GET_STYLE_2_PAUSE = "getStyle2Pause"
         private const val KEY_PAUSE = "pause"
@@ -74,6 +78,12 @@ class IslandSettingsProvider : ContentProvider() {
                     diameter = if (it.containsKey(KEY_DIAMETER)) it.getInt(KEY_DIAMETER) else null,
                 )
             }
+
+        /** Reads where the island opens. Falls back to following the camera on failure. */
+        fun readPlacement(context: Context): IslandPlacement {
+            val name = call(context, METHOD_GET_PLACEMENT)?.getString(KEY_PLACEMENT)
+            return IslandPlacement.entries.firstOrNull { it.name == name } ?: IslandPlacement.FOLLOW_CAMERA
+        }
 
         /** Reads the selected animation style. Falls back to the default style on failure. */
         fun readAnimationStyle(context: Context): IslandAnimationStyle {

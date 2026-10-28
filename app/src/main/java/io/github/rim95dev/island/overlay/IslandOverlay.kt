@@ -148,7 +148,12 @@ class IslandOverlay(
 
     private fun resolveGeometry(): IslandGeometry {
         val screen = detectScreenCamera(context)
-        val circle = screen.circleFor(IslandSettingsProvider.readCameraCalibration(context, screen.key))
+        val circle = IslandSettingsProvider.readPlacement(context).place(
+            circle = screen.circleFor(IslandSettingsProvider.readCameraCalibration(context, screen.key)),
+            width = screen.width,
+            height = screen.height,
+            density = screen.density,
+        )
         return IslandGeometryCalculator.calculate(screen.width, screen.height, circle, screen.density)
     }
 
