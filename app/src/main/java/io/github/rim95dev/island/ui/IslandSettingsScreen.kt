@@ -73,6 +73,7 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
     }
     var query by rememberSaveable { mutableStateOf("") }
 
+    var appLanguage by remember { mutableStateOf(AppLanguage.current(context)) }
     var accessibilityEnabled by remember { mutableStateOf(false) }
     var notificationAccessEnabled by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) {
@@ -92,6 +93,18 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item { SectionTitle(R.string.section_language) }
+        items(AppLanguage.entries) { language ->
+            LanguageOption(
+                title = stringResource(language.labelRes),
+                selected = language == appLanguage,
+                onSelect = {
+                    appLanguage = language
+                    language.apply(context)
+                },
+            )
+        }
+
         item { SectionTitle(R.string.section_permissions) }
         item {
             PermissionRow(
@@ -276,6 +289,30 @@ private fun PermissionRow(title: String, granted: Boolean, onOpenSettings: () ->
         }
     }
 }
+
+@Composable
+private fun LanguageOption(title: String, selected: Boolean, onSelect: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = selected, onClick = onSelect, role = Role.RadioButton),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(start = 12.dp),
+        )
+    }
+}
+
+private val AppLanguage.labelRes: Int
+    get() = when (this) {
+        AppLanguage.SYSTEM -> R.string.language_system
+        AppLanguage.ENGLISH -> R.string.language_english
+        AppLanguage.KOREAN -> R.string.language_korean
+    }
 
 @Composable
 private fun ModeOption(title: String, summary: String, selected: Boolean, onSelect: () -> Unit) {

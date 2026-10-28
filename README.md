@@ -71,6 +71,7 @@ Do this once per screen. On a foldable, do it once on the cover screen and once 
 
 ## Settings
 
+- **Language**: System default, English or Korean. You can also change it in the phone's settings under Apps → Dynamic Android → Language.
 - **Camera position**
   - **Follow the camera**: the island grows out of the camera on whichever edge it is, in every orientation. The default.
   - **Top of the screen**: the island always opens from the top. When the camera is at the top it still grows out of it; when the phone is turned so the camera is on another edge, it opens from the top center.

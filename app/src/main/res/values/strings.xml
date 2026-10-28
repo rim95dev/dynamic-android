@@ -1,10 +1,16 @@
 <resources>
-    <string name="app_name">Dynamic Android</string>
+    <string name="app_name" translatable="false">Dynamic Android</string>
 
     <string name="accessibility_service_label">Dynamic Island</string>
-    <string name="accessibility_service_description">Shows incoming notifications as an island around the front camera at the top of the screen.</string>
+    <string name="accessibility_service_description">Shows incoming notifications as an island that grows out of the front camera.</string>
     <string name="notification_listener_label">Dynamic Island notifications</string>
     <string name="island_new_notification">New notification</string>
+
+    <string name="section_language">Language</string>
+    <string name="language_system">System default</string>
+    <!-- Language names are shown in their own language. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_korean" translatable="false">한국어</string>
 
     <string name="section_permissions">Permissions</string>
     <string name="permission_accessibility">Accessibility service</string>
