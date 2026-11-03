@@ -15,6 +15,9 @@ data class IslandNotification(
     val icon: Drawable?,
     val contentIntent: PendingIntent?,
     val autoCancel: Boolean,
+    /** A login or verification code found in the notification, shown in place of [text]. */
+    val code: String? = null,
+    val codeCopied: Boolean = false,
 )
 
 sealed interface IslandEvent {

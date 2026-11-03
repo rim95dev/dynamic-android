@@ -108,16 +108,10 @@ internal fun KeywordRuleDialog(
     onDismiss: () -> Unit,
 ) {
     var rule by remember { mutableStateOf(savedRule ?: KeywordRule()) }
-    var input by rememberSaveable { mutableStateOf("") }
 
     fun update(new: KeywordRule) {
         rule = new
         onSave(new)
-    }
-
-    fun addInput() {
-        update(rule.withKeyword(input))
-        input = ""
     }
 
     AlertDialog(
@@ -140,34 +134,15 @@ internal fun KeywordRuleDialog(
                     selected = rule.mode == KeywordRuleMode.SHOW_MATCHING,
                     onSelect = { update(rule.copy(mode = KeywordRuleMode.SHOW_MATCHING)) },
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = input,
-                        onValueChange = { input = it },
-                        label = { Text(stringResource(R.string.keyword_input)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { addInput() }),
-                        modifier = Modifier.weight(1f),
-                    )
-                    TextButton(onClick = { addInput() }, enabled = input.isNotBlank()) {
-                        Text(text = stringResource(R.string.keyword_add))
-                    }
-                }
+                KeywordInput(
+                    label = stringResource(R.string.keyword_input),
+                    onAdd = { update(rule.withKeyword(it)) },
+                )
                 if (rule.keywords.isEmpty()) {
                     Text(text = stringResource(R.string.keyword_empty), style = MaterialTheme.typography.bodySmall)
                 }
                 rule.keywords.forEach { keyword ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = keyword,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f),
-                        )
-                        TextButton(onClick = { update(rule.withoutKeyword(keyword)) }) {
-                            Text(text = stringResource(R.string.keyword_remove))
-                        }
-                    }
+                    KeywordItem(keyword = keyword, onRemove = { update(rule.withoutKeyword(keyword)) })
                 }
             }
         },
@@ -189,6 +164,46 @@ internal fun KeywordRuleDialog(
             }
         },
     )
+}
+
+/** A text field with an Add button. The field clears after each add. */
+@Composable
+internal fun KeywordInput(label: String, onAdd: (String) -> Unit, modifier: Modifier = Modifier) {
+    var input by rememberSaveable { mutableStateOf("") }
+
+    fun add() {
+        onAdd(input)
+        input = ""
+    }
+
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = input,
+            onValueChange = { input = it },
+            label = { Text(label) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { add() }),
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = { add() }, enabled = input.isNotBlank()) {
+            Text(text = stringResource(R.string.keyword_add))
+        }
+    }
+}
+
+@Composable
+internal fun KeywordItem(keyword: String, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = keyword,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onRemove) {
+            Text(text = stringResource(R.string.keyword_remove))
+        }
+    }
 }
 
 @Composable

@@ -26,6 +26,7 @@ class IslandSettingsProvider : ContentProvider() {
         return when (method) {
             METHOD_GET_APP_FILTER -> settings.appFilter.value.toBundle()
             METHOD_GET_KEYWORD_RULE -> arg?.let { settings.keywordRules.value[it] }?.toBundle()
+            METHOD_GET_ONE_TIME_CODE -> settings.oneTimeCode.value.toBundle()
             METHOD_GET_CAMERA_CALIBRATION -> arg?.let { settings.cameraCalibrations.value[it] }?.toBundle()
             METHOD_GET_PLACEMENT -> Bundle().apply { putString(KEY_PLACEMENT, settings.placement.value.name) }
             METHOD_GET_ANIMATION_STYLE -> Bundle().apply { putString(KEY_STYLE, settings.animationStyle.value.name) }
@@ -54,6 +55,9 @@ class IslandSettingsProvider : ContentProvider() {
         private const val METHOD_GET_APP_FILTER = "getAppFilter"
         private const val METHOD_GET_KEYWORD_RULE = "getKeywordRule"
         private const val KEY_KEYWORDS = "keywords"
+        private const val METHOD_GET_ONE_TIME_CODE = "getOneTimeCode"
+        private const val KEY_ENABLED = "enabled"
+        private const val KEY_AUTO_COPY = "autoCopy"
         private const val METHOD_GET_CAMERA_CALIBRATION = "getCameraCalibration"
         private const val METHOD_GET_PLACEMENT = "getPlacement"
         private const val KEY_PLACEMENT = "placement"
@@ -79,6 +83,16 @@ class IslandSettingsProvider : ContentProvider() {
                     ?: return@let null
                 KeywordRule(mode, bundle.getStringArrayList(KEY_KEYWORDS).orEmpty())
             }
+
+        /** Reads how codes in notifications are shown. Falls back to the defaults on failure. */
+        fun readOneTimeCodeSettings(context: Context): OneTimeCodeSettings =
+            call(context, METHOD_GET_ONE_TIME_CODE)?.let {
+                OneTimeCodeSettings(
+                    enabled = it.getBoolean(KEY_ENABLED, true),
+                    autoCopy = it.getBoolean(KEY_AUTO_COPY, true),
+                    keywords = it.getStringArrayList(KEY_KEYWORDS).orEmpty(),
+                )
+            } ?: OneTimeCodeSettings()
 
         /** Reads the user-adjusted camera hole for [screenKey], or null when the detected one is used. */
         fun readCameraCalibration(context: Context, screenKey: String): CameraCalibration? =
@@ -119,6 +133,12 @@ class IslandSettingsProvider : ContentProvider() {
 
         private fun KeywordRule.toBundle() = Bundle().apply {
             putString(KEY_MODE, mode.name)
+            putStringArrayList(KEY_KEYWORDS, ArrayList(keywords))
+        }
+
+        private fun OneTimeCodeSettings.toBundle() = Bundle().apply {
+            putBoolean(KEY_ENABLED, enabled)
+            putBoolean(KEY_AUTO_COPY, autoCopy)
             putStringArrayList(KEY_KEYWORDS, ArrayList(keywords))
         }
 

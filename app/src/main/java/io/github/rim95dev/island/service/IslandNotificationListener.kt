@@ -3,7 +3,11 @@ package io.github.rim95dev.island.service
 import android.app.KeyguardManager
 import android.app.Notification
 import android.app.NotificationManager
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.os.PowerManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -13,6 +17,7 @@ import io.github.rim95dev.island.notification.IslandEvents
 import io.github.rim95dev.island.notification.IslandNotification
 import io.github.rim95dev.island.notification.NotificationFacts
 import io.github.rim95dev.island.notification.NotificationGate
+import io.github.rim95dev.island.notification.OneTimeCodeDetector
 import io.github.rim95dev.island.settings.IslandSettingsProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -65,15 +70,36 @@ class IslandNotificationListener : NotificationListenerService() {
         if (!NotificationGate.shouldShow(facts, appFilter, keywordRule, packageName)) return
 
         val hideContent = isLocked && lockScreenVisibility != Notification.VISIBILITY_PUBLIC
-        IslandEvents.post(IslandEvent.Show(sbn.toIslandNotification(hideContent)))
+        // Codes stay hidden on the lock screen along with the rest of the content.
+        val codeSettings = IslandSettingsProvider.readOneTimeCodeSettings(this)
+        val code = if (codeSettings.enabled && !hideContent) {
+            OneTimeCodeDetector.find(facts.content.joinToString("\n"), codeSettings.keywords)
+        } else {
+            null
+        }
+        val copied = code != null && codeSettings.autoCopy && copyCode(code)
+        IslandEvents.post(IslandEvent.Show(sbn.toIslandNotification(hideContent, code, copied)))
     }
+
+    /** Copies [code] marked as sensitive, so the clipboard preview does not show it. */
+    private fun copyCode(code: String): Boolean = runCatching {
+        val clip = ClipData.newPlainText(getString(R.string.one_time_code_clip_label), code)
+        clip.description.extras = PersistableBundle().apply {
+            putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
+        }
+        getSystemService(ClipboardManager::class.java).setPrimaryClip(clip)
+    }.isSuccess
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         activeKeys.remove(sbn.key)
         IslandEvents.post(IslandEvent.Remove(sbn.key))
     }
 
-    private fun StatusBarNotification.toIslandNotification(hideContent: Boolean): IslandNotification {
+    private fun StatusBarNotification.toIslandNotification(
+        hideContent: Boolean,
+        code: String?,
+        codeCopied: Boolean,
+    ): IslandNotification {
         val appLabel = runCatching {
             packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
         }.getOrDefault(packageName)
@@ -97,6 +123,8 @@ class IslandNotificationListener : NotificationListenerService() {
             icon = icon,
             contentIntent = notification.contentIntent,
             autoCancel = notification.hasFlag(Notification.FLAG_AUTO_CANCEL),
+            code = code,
+            codeCopied = codeCopied,
         )
     }
 }

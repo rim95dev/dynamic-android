@@ -26,12 +26,7 @@ data class KeywordRule(
         }
     }
 
-    /** Adds [keyword] unless it is blank or already listed, ignoring case. */
-    fun withKeyword(keyword: String): KeywordRule {
-        val cleaned = keyword.replace(LINE_BREAK, " ").trim()
-        if (cleaned.isEmpty() || keywords.any { it.equals(cleaned, ignoreCase = true) }) return this
-        return copy(keywords = keywords + cleaned)
-    }
+    fun withKeyword(keyword: String): KeywordRule = copy(keywords = keywords.plusKeyword(keyword))
 
     fun withoutKeyword(keyword: String): KeywordRule = copy(keywords = keywords - keyword)
 
@@ -39,12 +34,22 @@ data class KeywordRule(
     fun encode(): String = (listOf(mode.name) + keywords).joinToString("\n")
 
     companion object {
-        private val LINE_BREAK = Regex("[\\r\\n]+")
-
         fun decode(value: String?): KeywordRule? {
             val lines = value?.split("\n") ?: return null
             val mode = KeywordRuleMode.entries.firstOrNull { it.name == lines.first() } ?: return null
             return KeywordRule(mode, lines.drop(1).filter { it.isNotEmpty() })
         }
     }
+}
+
+private val LINE_BREAK = Regex("[\\r\\n]+")
+
+/**
+ * Adds [keyword] unless it is blank or already listed, ignoring case. Line breaks become spaces, so a list
+ * can be saved one keyword per line.
+ */
+internal fun List<String>.plusKeyword(keyword: String): List<String> {
+    val cleaned = keyword.replace(LINE_BREAK, " ").trim()
+    if (cleaned.isEmpty() || any { it.equals(cleaned, ignoreCase = true) }) return this
+    return this + cleaned
 }

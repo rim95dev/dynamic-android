@@ -46,6 +46,18 @@
     <string name="test_island_title">다이나믹 아일랜드</string>
     <string name="test_island_text">테스트 알림입니다. 몇 초 뒤에 닫힙니다.</string>
 
+    <string name="section_one_time_codes">인증번호</string>
+    <string name="one_time_code_show">인증번호 크게 보이기</string>
+    <string name="one_time_code_show_summary">로그인·인증번호가 든 알림이 오면 섬에 메시지 대신 코드를 크게 보여줍니다.</string>
+    <string name="one_time_code_auto_copy">자동 복사</string>
+    <string name="one_time_code_auto_copy_summary">섬에 인증번호가 뜨면 바로 클립보드에 복사합니다.</string>
+    <string name="one_time_code_keywords">추가 감지 단어</string>
+    <string name="one_time_code_keywords_summary">인증번호, OTP, verification code 같은 단어가 있는 알림에서만 코드를 찾습니다. 못 찾은 문자가 있으면 그 문자에 들어 있는 단어를 추가하세요.</string>
+    <string name="one_time_code_keyword_input">단어</string>
+    <string name="one_time_code_hidden_note">안드로이드는 일부 인증번호 알림의 내용을 다른 앱에 가려서 줍니다. 이 가림을 풀기 전에는 그런 알림에서 코드를 찾을 수 없습니다.</string>
+    <string name="one_time_code_copied">복사됨</string>
+    <string name="one_time_code_clip_label">인증번호</string>
+
     <string name="section_keyword_filters">문구 필터</string>
     <string name="keyword_filters_summary">앱 알림에 들어 있는 문구로 섬에 숨기거나 보여줍니다. 제목, 내용, 채팅방 이름에서 대소문자 구분 없이 찾습니다.</string>
     <string name="keyword_add_app">앱 추가</string>

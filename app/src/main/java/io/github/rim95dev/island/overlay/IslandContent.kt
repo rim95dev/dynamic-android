@@ -29,12 +29,15 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import io.github.rim95dev.island.R
 import io.github.rim95dev.island.notification.IslandNotification
 
 private val ExpandedCornerRadius = 28.dp
@@ -128,15 +131,40 @@ private fun NotificationRow(notification: IslandNotification, modifier: Modifier
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            notification.text?.let {
-                Text(
-                    text = it,
-                    color = Color.White.copy(alpha = 0.72f),
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            val code = notification.code
+            if (code != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = code,
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        letterSpacing = 2.sp,
+                        maxLines = 1,
+                    )
+                    if (notification.codeCopied) {
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.one_time_code_copied),
+                            color = Color.White.copy(alpha = 0.72f),
+                            fontSize = 13.sp,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            } else {
+                notification.text?.let {
+                    Text(
+                        text = it,
+                        color = Color.White.copy(alpha = 0.72f),
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }

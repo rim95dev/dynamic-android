@@ -51,6 +51,18 @@
     <string name="test_island_title">Dynamic Island</string>
     <string name="test_island_text">This is a test notification. It closes in a few seconds.</string>
 
+    <string name="section_one_time_codes">Verification codes</string>
+    <string name="one_time_code_show">Show codes large</string>
+    <string name="one_time_code_show_summary">When a notification carries a login or verification code, the island shows the code in large type instead of the message.</string>
+    <string name="one_time_code_auto_copy">Copy automatically</string>
+    <string name="one_time_code_auto_copy_summary">Copies the code to the clipboard as soon as the island shows it.</string>
+    <string name="one_time_code_keywords">Extra code words</string>
+    <string name="one_time_code_keywords_summary">Codes are looked for only in notifications with a code word, such as OTP or verification code. If a code is missed, add a word from that message.</string>
+    <string name="one_time_code_keyword_input">Word</string>
+    <string name="one_time_code_hidden_note">Android hides the text of some code notifications from other apps. The island cannot find those codes until that is turned off.</string>
+    <string name="one_time_code_copied">Copied</string>
+    <string name="one_time_code_clip_label">Verification code</string>
+
     <string name="section_keyword_filters">Keyword filters</string>
     <string name="keyword_filters_summary">Hide or show an app\'s notifications by the words in them. The title, text and chat room name are checked, ignoring case.</string>
     <string name="keyword_add_app">Add app</string>

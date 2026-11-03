@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -74,6 +75,7 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
     }
     var query by rememberSaveable { mutableStateOf("") }
     val keywordRules by settings.keywordRules.collectAsStateWithLifecycle()
+    val oneTimeCode by settings.oneTimeCode.collectAsStateWithLifecycle()
     val appsByPackage = remember(apps) { apps?.associateBy { it.packageName }.orEmpty() }
     val sortedKeywordRules = keywordRules.toList().sortedBy { (packageName, _) ->
         appsByPackage[packageName]?.label ?: packageName
@@ -209,6 +211,59 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
                 ) {
                     Text(text = stringResource(R.string.test_island_button))
                 }
+            }
+        }
+
+        item { SectionTitle(R.string.section_one_time_codes) }
+        item {
+            SwitchOption(
+                title = stringResource(R.string.one_time_code_show),
+                summary = stringResource(R.string.one_time_code_show_summary),
+                checked = oneTimeCode.enabled,
+                onCheckedChange = settings::setOneTimeCodeEnabled,
+            )
+        }
+        item {
+            SwitchOption(
+                title = stringResource(R.string.one_time_code_auto_copy),
+                summary = stringResource(R.string.one_time_code_auto_copy_summary),
+                checked = oneTimeCode.autoCopy,
+                onCheckedChange = settings::setOneTimeCodeAutoCopy,
+                enabled = oneTimeCode.enabled,
+            )
+        }
+        if (oneTimeCode.enabled) {
+            item {
+                Column {
+                    Text(
+                        text = stringResource(R.string.one_time_code_keywords),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = stringResource(R.string.one_time_code_keywords_summary),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            item {
+                KeywordInput(
+                    label = stringResource(R.string.one_time_code_keyword_input),
+                    onAdd = settings::addOneTimeCodeKeyword,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            items(oneTimeCode.keywords, key = { "code-word:$it" }) { keyword ->
+                KeywordItem(
+                    keyword = keyword,
+                    onRemove = { settings.removeOneTimeCodeKeyword(keyword) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.one_time_code_hidden_note),
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
         }
 
@@ -379,6 +434,32 @@ internal fun ModeOption(title: String, summary: String, selected: Boolean, onSel
             Text(text = title, style = MaterialTheme.typography.titleMedium)
             Text(text = summary, style = MaterialTheme.typography.bodyMedium)
         }
+    }
+}
+
+@Composable
+private fun SwitchOption(
+    title: String,
+    summary: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, enabled = enabled, onValueChange = onCheckedChange, role = Role.Switch),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp),
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Text(text = summary, style = MaterialTheme.typography.bodyMedium)
+        }
+        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
 }
 

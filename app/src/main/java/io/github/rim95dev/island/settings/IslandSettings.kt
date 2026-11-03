@@ -87,6 +87,32 @@ class IslandSettings private constructor(context: Context) {
         }
     }
 
+    private val _oneTimeCode = MutableStateFlow(
+        OneTimeCodeSettings(
+            enabled = prefs.getBoolean(KEY_CODE_ENABLED, true),
+            autoCopy = prefs.getBoolean(KEY_CODE_AUTO_COPY, true),
+            keywords = prefs.getString(KEY_CODE_KEYWORDS, null)?.split("\n")?.filter { it.isNotEmpty() }.orEmpty(),
+        ),
+    )
+    val oneTimeCode: StateFlow<OneTimeCodeSettings> = _oneTimeCode.asStateFlow()
+
+    fun setOneTimeCodeEnabled(enabled: Boolean) = updateOneTimeCode { it.copy(enabled = enabled) }
+
+    fun setOneTimeCodeAutoCopy(autoCopy: Boolean) = updateOneTimeCode { it.copy(autoCopy = autoCopy) }
+
+    fun addOneTimeCodeKeyword(keyword: String) = updateOneTimeCode { it.copy(keywords = it.keywords.plusKeyword(keyword)) }
+
+    fun removeOneTimeCodeKeyword(keyword: String) = updateOneTimeCode { it.copy(keywords = it.keywords - keyword) }
+
+    private fun updateOneTimeCode(transform: (OneTimeCodeSettings) -> OneTimeCodeSettings) {
+        val updated = _oneTimeCode.updateAndGet(transform)
+        prefs.edit {
+            putBoolean(KEY_CODE_ENABLED, updated.enabled)
+            putBoolean(KEY_CODE_AUTO_COPY, updated.autoCopy)
+            putString(KEY_CODE_KEYWORDS, updated.keywords.joinToString("\n"))
+        }
+    }
+
     fun setAppFilterMode(mode: AppFilterMode) = updateAppFilter { it.copy(mode = mode) }
 
     fun setAppException(packageName: String, isException: Boolean) =
@@ -136,6 +162,9 @@ class IslandSettings private constructor(context: Context) {
         private const val KEY_EXCLUDED = "excluded_packages"
         private const val KEY_INCLUDED = "included_packages"
         private const val KEY_KEYWORD_RULE_PREFIX = "keyword_rule/"
+        private const val KEY_CODE_ENABLED = "one_time_code_enabled"
+        private const val KEY_CODE_AUTO_COPY = "one_time_code_auto_copy"
+        private const val KEY_CODE_KEYWORDS = "one_time_code_keywords"
 
         @Volatile
         private var instance: IslandSettings? = null

@@ -80,6 +80,12 @@ Do this once per screen. On a foldable, do it once on the cover screen and once 
   - **Style 1**: the island stretches and drops into a card in one motion.
   - **Style 2**: the island stretches into a pill, pauses, then drops into a card. The pause is adjustable from 0 to 300 ms.
   - **Test** shows a sample island right away, so you can try the style and camera position.
+- **Verification codes**
+  - **Show codes large**: when a notification carries a login or verification code, the island shows the code in large type instead of the message. On by default.
+  - **Copy automatically**: the code is copied to the clipboard as soon as the island shows it. On by default.
+  - Codes are looked for only in notifications with a code word such as 인증번호, OTP or verification code, so numbers in ordinary messages are left alone. Phone numbers, dates, times, amounts and masked card numbers are never taken as codes. If a code is missed, add a word from that message under **Extra code words**.
+  - Codes are not shown or copied on the lock screen.
+  - Android hides the text of some code notifications from apps like this one, and the island cannot find those codes.
 - **Keyword filters**: pick an app and list keywords for it.
   - **Hide when it contains**: the app's notifications with any of the keywords stay out of the island.
   - **Show only when it contains**: only the app's notifications with one of the keywords appear in the island.
