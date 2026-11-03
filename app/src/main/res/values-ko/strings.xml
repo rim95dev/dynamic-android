@@ -46,6 +46,24 @@
     <string name="test_island_title">다이나믹 아일랜드</string>
     <string name="test_island_text">테스트 알림입니다. 몇 초 뒤에 닫힙니다.</string>
 
+    <string name="section_keyword_filters">문구 필터</string>
+    <string name="keyword_filters_summary">앱 알림에 들어 있는 문구로 섬에 숨기거나 보여줍니다. 제목, 내용, 채팅방 이름에서 대소문자 구분 없이 찾습니다.</string>
+    <string name="keyword_add_app">앱 추가</string>
+    <string name="keyword_choose_app">앱 선택</string>
+    <string name="keyword_cancel">취소</string>
+    <string name="keyword_rule_hide_summary">이 문구가 있으면 숨김: %1$s</string>
+    <string name="keyword_rule_show_summary">이 문구가 있을 때만 표시: %1$s</string>
+    <string name="keyword_mode_hide">문구가 있으면 숨기기</string>
+    <string name="keyword_mode_hide_summary">아래 문구 중 하나라도 들어 있는 알림은 섬에 나오지 않습니다.</string>
+    <string name="keyword_mode_show">문구가 있을 때만 보여주기</string>
+    <string name="keyword_mode_show_summary">아래 문구 중 하나가 들어 있는 알림만 섬에 나옵니다.</string>
+    <string name="keyword_input">문구</string>
+    <string name="keyword_add">추가</string>
+    <string name="keyword_remove">삭제</string>
+    <string name="keyword_empty">문구를 추가하면 필터가 켜집니다.</string>
+    <string name="keyword_delete_rule">필터 삭제</string>
+    <string name="keyword_done">완료</string>
+
     <string name="section_notification_apps">알림 앱</string>
     <string name="mode_all_apps">모든 앱 표시</string>
     <string name="mode_all_apps_summary">아래에서 체크한 앱을 빼고 모든 앱의 알림이 섬에 나옵니다.</string>

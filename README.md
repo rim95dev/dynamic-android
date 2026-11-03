@@ -80,6 +80,10 @@ Do this once per screen. On a foldable, do it once on the cover screen and once 
   - **Style 1**: the island stretches and drops into a card in one motion.
   - **Style 2**: the island stretches into a pill, pauses, then drops into a card. The pause is adjustable from 0 to 300 ms.
   - **Test** shows a sample island right away, so you can try the style and camera position.
+- **Keyword filters**: pick an app and list keywords for it.
+  - **Hide when it contains**: the app's notifications with any of the keywords stay out of the island.
+  - **Show only when it contains**: only the app's notifications with one of the keywords appear in the island.
+  - Keywords are looked up in the title, text and chat room name, ignoring case. Earlier messages of a conversation are not checked. An app hidden under **Notification apps** stays hidden whatever its keywords.
 - **Notification apps**
   - **Show all apps**: every app appears in the island except the ones you check.
   - **Show no apps**: only the apps you check appear in the island.
@@ -102,6 +106,7 @@ The island shows new notifications that would normally alert you, while the scre
 - Group summaries
 - Silent notifications and notifications blocked by Do Not Disturb
 - Quiet updates to a notification that is already showing
+- Notifications left out by a keyword filter
 
 On the lock screen, the island shows only the app name and "New notification" unless the notification is marked as public. Notifications marked as secret are not shown there at all.
 

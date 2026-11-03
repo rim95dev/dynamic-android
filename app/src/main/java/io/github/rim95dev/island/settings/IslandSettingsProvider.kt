@@ -25,6 +25,7 @@ class IslandSettingsProvider : ContentProvider() {
         val settings = IslandSettings.get(context)
         return when (method) {
             METHOD_GET_APP_FILTER -> settings.appFilter.value.toBundle()
+            METHOD_GET_KEYWORD_RULE -> arg?.let { settings.keywordRules.value[it] }?.toBundle()
             METHOD_GET_CAMERA_CALIBRATION -> arg?.let { settings.cameraCalibrations.value[it] }?.toBundle()
             METHOD_GET_PLACEMENT -> Bundle().apply { putString(KEY_PLACEMENT, settings.placement.value.name) }
             METHOD_GET_ANIMATION_STYLE -> Bundle().apply { putString(KEY_STYLE, settings.animationStyle.value.name) }
@@ -51,6 +52,8 @@ class IslandSettingsProvider : ContentProvider() {
 
     companion object {
         private const val METHOD_GET_APP_FILTER = "getAppFilter"
+        private const val METHOD_GET_KEYWORD_RULE = "getKeywordRule"
+        private const val KEY_KEYWORDS = "keywords"
         private const val METHOD_GET_CAMERA_CALIBRATION = "getCameraCalibration"
         private const val METHOD_GET_PLACEMENT = "getPlacement"
         private const val KEY_PLACEMENT = "placement"
@@ -68,6 +71,14 @@ class IslandSettingsProvider : ContentProvider() {
         /** Reads the current app filter from the main process. Falls back to the default filter on failure. */
         fun readAppFilter(context: Context): AppFilter =
             call(context, METHOD_GET_APP_FILTER)?.toAppFilter() ?: AppFilter()
+
+        /** Reads the keyword rule for [packageName], or null when the app has none or the read fails. */
+        fun readKeywordRule(context: Context, packageName: String): KeywordRule? =
+            call(context, METHOD_GET_KEYWORD_RULE, packageName)?.let { bundle ->
+                val mode = KeywordRuleMode.entries.firstOrNull { it.name == bundle.getString(KEY_MODE) }
+                    ?: return@let null
+                KeywordRule(mode, bundle.getStringArrayList(KEY_KEYWORDS).orEmpty())
+            }
 
         /** Reads the user-adjusted camera hole for [screenKey], or null when the detected one is used. */
         fun readCameraCalibration(context: Context, screenKey: String): CameraCalibration? =
@@ -104,6 +115,11 @@ class IslandSettingsProvider : ContentProvider() {
             putInt(KEY_X, x)
             putInt(KEY_Y, y)
             diameter?.let { putInt(KEY_DIAMETER, it) }
+        }
+
+        private fun KeywordRule.toBundle() = Bundle().apply {
+            putString(KEY_MODE, mode.name)
+            putStringArrayList(KEY_KEYWORDS, ArrayList(keywords))
         }
 
         private fun AppFilter.toBundle() = Bundle().apply {

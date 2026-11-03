@@ -1,6 +1,7 @@
 package io.github.rim95dev.island.notification
 
 import io.github.rim95dev.island.settings.AppFilter
+import io.github.rim95dev.island.settings.KeywordRule
 
 /** What the island needs to know about a posted notification to decide whether to show it. */
 data class NotificationFacts(
@@ -17,15 +18,26 @@ data class NotificationFacts(
     val isScreenOn: Boolean,
     /** The device is locked and the notification must not appear on the lock screen. */
     val isHiddenOnLockScreen: Boolean,
+    /** The title, text and conversation name, matched against keyword rules. */
+    val content: List<String> = emptyList(),
 )
 
 object NotificationGate {
 
-    /** Shows only newly alerting notifications from apps the [appFilter] allows, while the screen is on. */
-    fun shouldShow(facts: NotificationFacts, appFilter: AppFilter, ownPackageName: String): Boolean =
+    /**
+     * Shows only newly alerting notifications from apps the [appFilter] allows, while the screen is on.
+     * [keywordRule] is the rule of the notification's app, if it has one.
+     */
+    fun shouldShow(
+        facts: NotificationFacts,
+        appFilter: AppFilter,
+        keywordRule: KeywordRule?,
+        ownPackageName: String,
+    ): Boolean =
         facts.isScreenOn &&
             facts.packageName != ownPackageName &&
             appFilter.allows(facts.packageName) &&
+            (keywordRule == null || keywordRule.allows(facts.content)) &&
             !facts.isOngoing &&
             !facts.isGroupSummary &&
             !facts.isSilent &&

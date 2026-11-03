@@ -30,6 +30,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -72,6 +73,13 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
         value = withContext(Dispatchers.IO) { loadLauncherApps(context) }
     }
     var query by rememberSaveable { mutableStateOf("") }
+    val keywordRules by settings.keywordRules.collectAsStateWithLifecycle()
+    val appsByPackage = remember(apps) { apps?.associateBy { it.packageName }.orEmpty() }
+    val sortedKeywordRules = keywordRules.toList().sortedBy { (packageName, _) ->
+        appsByPackage[packageName]?.label ?: packageName
+    }
+    var keywordRulePackage by rememberSaveable { mutableStateOf<String?>(null) }
+    var choosingKeywordApp by rememberSaveable { mutableStateOf(false) }
 
     var appLanguage by remember { mutableStateOf(AppLanguage.current(context)) }
     var accessibilityEnabled by remember { mutableStateOf(false) }
@@ -204,6 +212,27 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
             }
         }
 
+        item { SectionTitle(R.string.section_keyword_filters) }
+        item {
+            Text(
+                text = stringResource(R.string.keyword_filters_summary),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        items(sortedKeywordRules, key = { (packageName, _) -> "keyword:$packageName" }) { (packageName, rule) ->
+            KeywordRuleRow(
+                app = appsByPackage[packageName],
+                packageName = packageName,
+                rule = rule,
+                onClick = { keywordRulePackage = packageName },
+            )
+        }
+        item {
+            Button(onClick = { choosingKeywordApp = true }, enabled = apps != null) {
+                Text(text = stringResource(R.string.keyword_add_app))
+            }
+        }
+
         item { SectionTitle(R.string.section_notification_apps) }
         item {
             ModeOption(
@@ -257,6 +286,29 @@ fun IslandSettingsScreen(onAdjustCamera: () -> Unit, modifier: Modifier = Modifi
                     onCheckedChange = { settings.setAppException(app.packageName, it) },
                 )
             }
+        }
+    }
+
+    val pickerApps = apps
+    if (choosingKeywordApp && pickerApps != null) {
+        AppPickerDialog(
+            apps = pickerApps,
+            onPick = {
+                choosingKeywordApp = false
+                keywordRulePackage = it.packageName
+            },
+            onDismiss = { choosingKeywordApp = false },
+        )
+    }
+    keywordRulePackage?.let { packageName ->
+        key(packageName) {
+            KeywordRuleDialog(
+                appLabel = appsByPackage[packageName]?.label ?: packageName,
+                savedRule = keywordRules[packageName],
+                onSave = { settings.setKeywordRule(packageName, it) },
+                onDelete = { settings.setKeywordRule(packageName, null) },
+                onDismiss = { keywordRulePackage = null },
+            )
         }
     }
 }
@@ -315,7 +367,7 @@ private val AppLanguage.labelRes: Int
     }
 
 @Composable
-private fun ModeOption(title: String, summary: String, selected: Boolean, onSelect: () -> Unit) {
+internal fun ModeOption(title: String, summary: String, selected: Boolean, onSelect: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -378,7 +430,7 @@ private fun AppExceptionRow(app: LauncherApp, checked: Boolean, onCheckedChange:
     }
 }
 
-private const val ICON_SIZE_PX = 120
+internal const val ICON_SIZE_PX = 120
 private const val PAUSE_STEP_MILLIS = 10
 
 private fun Context.isIslandAccessibilityServiceEnabled(): Boolean =

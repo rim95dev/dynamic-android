@@ -2,6 +2,8 @@ package io.github.rim95dev.island.notification
 
 import io.github.rim95dev.island.settings.AppFilter
 import io.github.rim95dev.island.settings.AppFilterMode
+import io.github.rim95dev.island.settings.KeywordRule
+import io.github.rim95dev.island.settings.KeywordRuleMode
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,10 +19,14 @@ class NotificationGateTest {
         isQuietUpdate = false,
         isScreenOn = true,
         isHiddenOnLockScreen = false,
+        content = listOf("엄마", "(광고) 오늘만 할인"),
     )
 
-    private fun shows(facts: NotificationFacts, filter: AppFilter = AppFilter()) =
-        NotificationGate.shouldShow(facts, filter, OWN_PACKAGE)
+    private fun shows(
+        facts: NotificationFacts,
+        filter: AppFilter = AppFilter(),
+        keywordRule: KeywordRule? = null,
+    ) = NotificationGate.shouldShow(facts, filter, keywordRule, OWN_PACKAGE)
 
     @Test
     fun `shows a new alerting notification while the screen is on`() {
@@ -56,6 +62,21 @@ class NotificationGateTest {
         assertFalse(shows(alerting, AppFilter().withException(KAKAO, isException = true)))
         assertFalse(shows(alerting, AppFilter(mode = AppFilterMode.NO_APPS)))
         assertTrue(shows(alerting, AppFilter(mode = AppFilterMode.NO_APPS).withException(KAKAO, isException = true)))
+    }
+
+    @Test
+    fun `follows the app's keyword rule`() {
+        assertFalse(shows(alerting, keywordRule = KeywordRule(KeywordRuleMode.HIDE_MATCHING, listOf("광고"))))
+        assertTrue(shows(alerting, keywordRule = KeywordRule(KeywordRuleMode.HIDE_MATCHING, listOf("배송"))))
+        assertTrue(shows(alerting, keywordRule = KeywordRule(KeywordRuleMode.SHOW_MATCHING, listOf("할인"))))
+        assertFalse(shows(alerting, keywordRule = KeywordRule(KeywordRuleMode.SHOW_MATCHING, listOf("배송"))))
+    }
+
+    @Test
+    fun `a keyword rule never shows what the app filter hides`() {
+        val hiddenKakao = AppFilter().withException(KAKAO, isException = true)
+
+        assertFalse(shows(alerting, hiddenKakao, KeywordRule(KeywordRuleMode.SHOW_MATCHING, listOf("할인"))))
     }
 
     private companion object {

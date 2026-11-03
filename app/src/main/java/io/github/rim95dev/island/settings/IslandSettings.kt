@@ -72,6 +72,21 @@ class IslandSettings private constructor(context: Context) {
         prefs.edit { putInt(KEY_STYLE_2_PAUSE, clamped) }
     }
 
+    private val _keywordRules = MutableStateFlow(readKeywordRules())
+
+    /** Keyword rules keyed by package name. Only rules with at least one keyword are kept. */
+    val keywordRules: StateFlow<Map<String, KeywordRule>> = _keywordRules.asStateFlow()
+
+    /** Saves the keyword rule for [packageName], or removes it when [rule] is null or has no keywords. */
+    fun setKeywordRule(packageName: String, rule: KeywordRule?) {
+        val kept = rule?.takeIf { it.keywords.isNotEmpty() }
+        _keywordRules.update { if (kept == null) it - packageName else it + (packageName to kept) }
+        prefs.edit {
+            if (kept == null) remove(KEY_KEYWORD_RULE_PREFIX + packageName)
+            else putString(KEY_KEYWORD_RULE_PREFIX + packageName, kept.encode())
+        }
+    }
+
     fun setAppFilterMode(mode: AppFilterMode) = updateAppFilter { it.copy(mode = mode) }
 
     fun setAppException(packageName: String, isException: Boolean) =
@@ -94,6 +109,14 @@ class IslandSettings private constructor(context: Context) {
         includedPackages = prefs.getStringSet(KEY_INCLUDED, null)?.toSet().orEmpty(),
     )
 
+    private fun readKeywordRules(): Map<String, KeywordRule> =
+        prefs.all
+            .filterKeys { it.startsWith(KEY_KEYWORD_RULE_PREFIX) }
+            .mapNotNull { (key, value) ->
+                KeywordRule.decode(value as? String)?.let { key.removePrefix(KEY_KEYWORD_RULE_PREFIX) to it }
+            }
+            .toMap()
+
     private fun readCameraCalibrations(): Map<String, CameraCalibration> =
         CameraCalibration.fromSaved(
             prefs.all
@@ -112,6 +135,7 @@ class IslandSettings private constructor(context: Context) {
         private const val KEY_MODE = "app_filter_mode"
         private const val KEY_EXCLUDED = "excluded_packages"
         private const val KEY_INCLUDED = "included_packages"
+        private const val KEY_KEYWORD_RULE_PREFIX = "keyword_rule/"
 
         @Volatile
         private var instance: IslandSettings? = null

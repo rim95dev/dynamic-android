@@ -58,9 +58,11 @@ class IslandNotificationListener : NotificationListenerService() {
             isQuietUpdate = wasActive && notification.hasFlag(Notification.FLAG_ONLY_ALERT_ONCE),
             isScreenOn = getSystemService(PowerManager::class.java).isInteractive,
             isHiddenOnLockScreen = isLocked && lockScreenVisibility == Notification.VISIBILITY_SECRET,
+            content = notification.extras.content(),
         )
         val appFilter = IslandSettingsProvider.readAppFilter(this)
-        if (!NotificationGate.shouldShow(facts, appFilter, packageName)) return
+        val keywordRule = IslandSettingsProvider.readKeywordRule(this, sbn.packageName)
+        if (!NotificationGate.shouldShow(facts, appFilter, keywordRule, packageName)) return
 
         val hideContent = isLocked && lockScreenVisibility != Notification.VISIBILITY_PUBLIC
         IslandEvents.post(IslandEvent.Show(sbn.toIslandNotification(hideContent)))
@@ -103,3 +105,17 @@ private fun Notification.hasFlag(flag: Int): Boolean = flags and flag != 0
 
 private fun Bundle.text(): String? =
     (getCharSequence(Notification.EXTRA_TEXT) ?: getCharSequence(Notification.EXTRA_BIG_TEXT))?.toString()
+
+/**
+ * The texts keyword rules look at. Earlier messages of a conversation are left out, so a keyword in an old
+ * message does not decide whether a new one is shown.
+ */
+private fun Bundle.content(): List<String> =
+    listOf(
+        Notification.EXTRA_TITLE,
+        Notification.EXTRA_TITLE_BIG,
+        Notification.EXTRA_TEXT,
+        Notification.EXTRA_BIG_TEXT,
+        Notification.EXTRA_SUB_TEXT,
+        Notification.EXTRA_CONVERSATION_TITLE,
+    ).mapNotNull { getCharSequence(it)?.toString() }
