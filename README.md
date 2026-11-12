@@ -4,7 +4,7 @@ An iPhone-style Dynamic Island for Android, built for the Galaxy Z Fold 8.
 
 New notifications grow out of the front camera as a small island, show the app, title and text for a few seconds, and then slip back into the camera. Tap the island to open the notification.
 
-> **Work in progress.** No official APK has been released yet. The app is still changing, so behavior, settings and this guide may change without notice. Until the first release, build it from source.
+> **Early version.** The app is still changing, so behavior, settings and this guide may change between releases.
 
 ## Why
 
@@ -19,13 +19,11 @@ There are already a few apps that bring the Dynamic Island to Android, but they 
 
 ### 1. Install the app
 
-No release has been published yet, so for now build from source: open the project in Android Studio and run it, or connect the phone with USB debugging on and run:
+Download the latest `dynamic-android-vX.Y.Z.apk` from [Releases](https://github.com/rim95dev/dynamic-android/releases) on the phone and open it. If the phone asks, allow your browser or file manager to install unknown apps. Later versions install over it the same way and keep your settings.
 
-```sh
-./gradlew installDebug
-```
+If a copy built with a different signing key is installed, such as one you built yourself, uninstall it first. Android refuses to update an app whose signature has changed.
 
-Once releases are available, download the latest `dynamic-android-vX.Y.Z.apk` from [Releases](https://github.com/rim95dev/dynamic-android/releases) on the phone and open it. If the phone asks, allow your browser or file manager to install unknown apps. If a copy built with a different signing key is installed, such as one you built yourself, uninstall it first. Android refuses to update an app whose signature has changed.
+To build the app yourself instead, see [Development](#development).
 
 ### 2. Allow the two permissions
 
@@ -121,7 +119,10 @@ On the lock screen, the island shows only the app name and "New notification" un
 ```sh
 ./gradlew testDebugUnitTest   # unit tests
 ./gradlew assembleDebug       # debug APK
+./gradlew installDebug        # install on a phone connected with USB debugging on
 ```
+
+You can also open the project in Android Studio and run it from there.
 
 Android Studio's bundled JDK works for command-line builds:
 
