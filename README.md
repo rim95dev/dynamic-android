@@ -162,3 +162,7 @@ The signing key never goes into the repository. Set it up once:
    ```
 
 The workflow stops with an error if any of the secrets is missing, so an unsigned APK is never published.
+
+## License
+
+[MIT](LICENSE)

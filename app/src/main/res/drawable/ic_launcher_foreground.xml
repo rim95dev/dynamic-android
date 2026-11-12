@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The island: a black pill around the front camera. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#0B0B0B"
+        android:pathData="M35,46 H73 A8,8 0 0 1 73,62 H35 A8,8 0 0 1 35,46 Z" />
+    <path
+        android:fillColor="#2C2C2A"
+        android:pathData="M50.4,54 A3.6,3.6 0 1 0 57.6,54 A3.6,3.6 0 1 0 50.4,54 Z" />
+    <path
+        android:fillColor="#378ADD"
+        android:pathData="M52.4,54 A1.6,1.6 0 1 0 55.6,54 A1.6,1.6 0 1 0 52.4,54 Z" />
+</vector>
