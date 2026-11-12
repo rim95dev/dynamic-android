@@ -50,7 +50,17 @@ Open **Dynamic Android** and turn on both permissions from its first screen.
 - **Accessibility service**: tap **Open settings**, find **Dynamic Island** under installed apps and turn it on. The app uses it only to draw the island above the status bar.
 - **Notification access**: tap **Open settings** and turn on **Dynamic Island notifications**. The app uses it to read new notifications.
 
-Apps installed from an APK file usually start with these switches greyed out. If so, open the app info page, tap ⋮ and choose **Allow restricted settings** first.
+Apps installed from an APK file usually start with these switches greyed out, because Android keeps them locked until you allow restricted settings for the app:
+
+1. Tap the greyed-out switch once and close the **Restricted setting** message. The option in the next step appears only after this.
+2. Open Settings → Apps → **Dynamic Android**, tap ⋮ in the top right corner and choose **Allow restricted settings**. Confirm with your fingerprint or PIN.
+3. Go back and turn on both switches.
+
+If ⋮ does not show the option, you can allow it over adb instead:
+
+```sh
+adb shell appops set io.github.rim95dev.island ACCESS_RESTRICTED_SETTINGS allow
+```
 
 ### 3. Turn off the system pop-ups
 
