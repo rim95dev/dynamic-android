@@ -25,6 +25,24 @@ If a copy built with a different signing key is installed, such as one you built
 
 To build the app yourself instead, see [Development](#development).
 
+#### If Play Protect blocks the install
+
+Google Play Protect may stop the install with **App blocked to protect your device**. On many phones, including in Korea, it blocks apps installed from a browser, messaging app or file manager when they ask for notification access or accessibility, and this app needs both to work. Install it in one of these two ways instead, and install later versions the same way.
+
+**Over USB with adb.** Play Protect does not check installs over adb this way, so it can stay on.
+
+1. On the phone, open Settings → About phone → Software information and tap **Build number** seven times. Then open Settings → Developer options and turn on **USB debugging**.
+2. On a computer, install [Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools). Connect the phone with a USB cable and allow USB debugging when the phone asks.
+3. Run:
+
+   ```sh
+   adb install dynamic-android-vX.Y.Z.apk
+   ```
+
+On Samsung phones, Auto Blocker also blocks commands over USB. If adb cannot find the phone, turn off Settings → Security and privacy → Auto Blocker, and turn it back on after installing.
+
+**With Play Protect turned off for a moment.** In the Play Store, tap your profile picture → **Play Protect** → the settings icon, and turn off **Scan apps with Play Protect**. Install the APK, then turn the setting back on right away.
+
 ### 2. Allow the two permissions
 
 Open **Dynamic Android** and turn on both permissions from its first screen.
